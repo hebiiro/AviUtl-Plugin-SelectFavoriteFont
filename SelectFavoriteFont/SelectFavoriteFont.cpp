@@ -6,7 +6,7 @@
 EXTERN_C FILTER_DLL __declspec(dllexport) * __stdcall GetFilterTable(void)
 {
 	static TCHAR g_filterName[] = TEXT("お気に入りフォント選択");
-	static TCHAR g_filterInformation[] = TEXT("お気に入りフォント選択 version 1.1.0 by 蛇色");
+	static TCHAR g_filterInformation[] = TEXT("お気に入りフォント選択 version 2.0.0 by 蛇色");
 
 	static FILTER_DLL g_filter =
 	{
@@ -124,6 +124,7 @@ void readFile(HWND comboBox, LPCTSTR fileName)
 {
 	_RPTFTN(_T("readFile(0x%08X, %s)\n"), comboBox, fileName);
 
+	// 既存のアイテムを全部削除する。
 	ComboBox_ResetContent(comboBox);
 
 	// 入力ストリームを開く。
@@ -144,6 +145,10 @@ void readFile(HWND comboBox, LPCTSTR fileName)
 void writeFile(HWND comboBox, LPCTSTR fileName)
 {
 	_RPTFTN(_T("writeFile(0x%08X, %s)\n"), comboBox, fileName);
+
+	// ウィンドウが無効だと空のファイルになってしまうのでチェックしておく。
+	if (!::IsWindow(g_favorite))
+		return;
 
 	// 出力ストリームを開く。
 	std::ofstream file(fileName);
@@ -213,6 +218,19 @@ void addFontName(HWND comboBox, LPCTSTR fontName)
 	// リストの先頭にフォント名を追加する。
 	ComboBox_InsertString(comboBox, 0, fontName);
 	ComboBox_SetCurSel(comboBox, 0);
+}
+
+// コンボボックスにテキストを追加する。ただし、すでに存在する場合は追加しない
+void deleteFontName(HWND comboBox, LPCTSTR fontName)
+{
+	// 指定されたフォント名がすでに存在するか調べる。
+	int index = findString(comboBox, fontName);
+	if (index >= 0)
+	{
+		// 一旦このフォント名を削除する。
+		ComboBox_DeleteString(comboBox, index);
+		::InvalidateRect(comboBox, NULL, TRUE);
+	}
 }
 
 // 指定されたテキストを持つアイテムを選択肢し、そのインデックスを返す
@@ -361,6 +379,7 @@ void moveContainer()
 	int rcBaseHeight = GetHeight(&rcBase);
 
 	{
+		// コンテナウィンドウを動かす。
 		int x = rcBase.left - rcBaseWidth;
 		int y = rcBase.top - rcBaseHeight;
 		int w = rcBaseWidth;
@@ -375,7 +394,6 @@ void moveContainer()
 
 	{
 		// 「よく使う」フォントコンボボックスを動かす。
-
 		int x = 0;
 		int y = 0;
 		int w = rcBaseWidth;
@@ -392,7 +410,6 @@ void moveContainer()
 
 	{
 		// 「お気に入り」フォントコンボボックスを動かす。
-
 		int x = 0;
 		int y = rcBaseHeight;
 		int w = rcBaseWidth;
@@ -452,9 +469,60 @@ LRESULT CALLBACK container_wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
 
 			break;
 		}
-	case WM_DESTROY:
+	case WM_CONTEXTMENU:
 		{
-			_RPTFTN(_T("WM_DESTROY, 0x%08X, 0x%08X\n"), wParam, lParam);
+			_RPTFTN(_T("WM_CONTEXTMENU, 0x%08X, 0x%08X\n"), wParam, lParam);
+
+			HWND myFontComboBox = (HWND)wParam;
+			HWND fontComboBox = ::GetDlgItem(g_exeditObjectDialog, ID_FONT_COMBO_BOX);
+
+			tstring fontName = getCurrentText(fontComboBox);
+			tstring myFontName = getCurrentText(myFontComboBox);
+
+			TCHAR addText[MAX_PATH] = {};
+			::StringCbPrintf(addText, sizeof(addText), _T("%s を追加"), fontName.c_str());
+			TCHAR deleteText[MAX_PATH] = {};
+			::StringCbPrintf(deleteText, sizeof(deleteText), _T("%s を削除"), myFontName.c_str());
+
+			_RPTF_STR(addText);
+			_RPTF_STR(deleteText);
+
+			const UINT ID_ADD = 1;
+			const UINT ID_DELETE = 2;
+
+			HMENU menu = ::CreatePopupMenu();
+			if (!fontName.empty() && findString(myFontComboBox, fontName.c_str()) < 0)
+				::AppendMenu(menu, MF_STRING, ID_ADD, addText);
+			if (!myFontName.empty())
+				::AppendMenu(menu, MF_STRING, ID_DELETE, deleteText);
+
+			int count = ::GetMenuItemCount(menu);
+			_RPTF_NUM(count);
+
+			if (count == 0)
+				break;
+
+			POINTS pt = MAKEPOINTS(lParam);
+			::SetForegroundWindow(hwnd);
+			UINT id = (UINT)::TrackPopupMenuEx(menu, TPM_NONOTIFY | TPM_RETURNCMD, pt.x, pt.y, hwnd, 0);
+			::PostMessage(hwnd, WM_NULL, 0, 0);
+			_RPTF_NUM(id);
+
+			switch (id)
+			{
+			case ID_ADD:
+				{
+					addFontName(myFontComboBox, fontName.c_str());
+
+					break;
+				}
+			case ID_DELETE:
+				{
+					deleteFontName(myFontComboBox, myFontName.c_str());
+
+					break;
+				}
+			}
 
 			break;
 		}
@@ -570,6 +638,7 @@ LRESULT CALLBACK cwprProc(int code, WPARAM wParam, LPARAM lParam)
 						hideContainer();
 
 						writeFile(g_popular, g_popularFileName);
+						writeFile(g_favorite, g_favoriteFileName);
 					}
 				}
 
