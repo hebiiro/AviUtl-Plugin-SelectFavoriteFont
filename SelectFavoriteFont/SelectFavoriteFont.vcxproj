@@ -175,7 +175,10 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Common\MyMSXML.h" />
+    <ClInclude Include="..\Common\MyTracer.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="SelectFavoriteFont.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SelectFavoriteFont.cpp" />
@@ -185,6 +188,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SelectFavoriteFont_Load.cpp" />
+    <ClCompile Include="SelectFavoriteFont_Save.cpp" />
+    <ClCompile Include="SelectFavoriteFont_Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SelectFavoriteFont.def" />
