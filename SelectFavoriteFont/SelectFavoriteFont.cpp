@@ -17,8 +17,7 @@ HWND g_container = 0;
 HWND g_recent = 0;
 HWND g_favorite = 0;
 
-double g_containerWidthScale = 2.0;
-double g_containerHeightScale = 16.0;
+RECT g_containerRect = { 100, 100, 500, 500 };
 _bstr_t g_labelFormat = L"%ws --- %ws";
 _bstr_t g_separatorFormat = L"---------";
 
@@ -172,7 +171,7 @@ void createContainer()
 		_T("SelectFavoriteFont"),
 		_T("SelectFavoriteFont"),
 		WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
-		WS_POPUP | WS_CAPTION,
+		WS_POPUP | WS_CAPTION | WS_THICKFRAME,
 //		WS_POPUP | WS_BORDER, // コンテナウィンドウに細い枠を付けたいならこっちを使う
 //		WS_POPUP | WS_DLGFRAME, // コンテナウィンドウに立体枠を付けたいならこっちを使う
 		0, 0, 100, 100,
@@ -245,27 +244,21 @@ void hideContainer()
 	::ShowWindow(g_container, SW_HIDE);
 }
 
-// コンテナウィンドウとコントロール群の表示位置を調整する
-void moveContainer()
+// コントロール群の表示位置を調整する
+void recalcLayout()
 {
-	MY_TRACE(_T("moveContainer()\n"));
+	MY_TRACE(_T("recalcLayout()\n"));
 
-	// 基準となる AviUtl (exedit) 側のコントロールを取得する。
+	// 基準となる AviUtl (exedit) 側のコントロールとその矩形を取得する。
 	HWND base = ::GetDlgItem(g_exeditObjectDialog, ID_FONT_COMBO_BOX);
-	if (!::IsWindowVisible(base)) return; // コントロールが非表示の場合は何もしない
 	RECT rcBase; ::GetWindowRect(base, &rcBase);
 	int rcBaseWidth = GetWidth(&rcBase);
 	int rcBaseHeight = GetHeight(&rcBase);
 
-	{
-		// コンテナウィンドウを動かす。
-		int w = (int)(rcBaseWidth * g_containerWidthScale);
-		int h = (int)(rcBaseHeight * g_containerHeightScale);
-		int x = rcBase.left - w;
-		int y = rcBase.top - rcBaseHeight;
-
-		SetClientRect(g_container, x, y, w, h);
-	}
+	// コンテナウィンドウのクライアント矩形を取得する。
+	RECT rcContainer; ::GetClientRect(g_container, &rcContainer);
+	int rcContainerWidth = GetWidth(&rcContainer);
+	int rcContainerHeight = GetHeight(&rcContainer);
 
 	HDWP dwp = ::BeginDeferWindowPos(2); // 引数は動かすウィンドウの数
 	MY_TRACE_HEX(dwp);
@@ -273,11 +266,11 @@ void moveContainer()
 
 	{
 		// 「最近使った」フォントコンボボックスを動かす。
-		int w = (int)(rcBaseWidth * g_containerWidthScale);
-		int h = (int)(rcBaseHeight * g_containerHeightScale);
+		int x = rcContainer.left;
+		int y = rcContainer.top;
+		int w = rcContainerWidth;
+		int h = rcContainerHeight;
 		int w2 = w + rcBaseWidth;
-		int x = 0;
-		int y = 0;
 
 //		::SendMessage(g_recent, CB_SETDROPPEDWIDTH, w2, 0);
 		dwp = ::DeferWindowPos(dwp, g_recent, NULL,
@@ -288,10 +281,10 @@ void moveContainer()
 
 	{
 		// 「お気に入り」ツリービューを動かす。
-		int x = 0;
-		int y = rcBaseHeight;
-		int w = (int)(rcBaseWidth * g_containerWidthScale);
-		int h = (int)(rcBaseHeight * g_containerHeightScale) - y;
+		int x = rcContainer.left;
+		int y = rcContainer.top + rcBaseHeight;
+		int w = rcContainerWidth;
+		int h = rcContainerHeight - rcBaseHeight;
 
 		dwp = ::DeferWindowPos(dwp, g_favorite, NULL,
 			x, y, w, h, SWP_NOZORDER | SWP_NOACTIVATE);
@@ -486,6 +479,24 @@ LRESULT CALLBACK container_wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
 
 			break;
 		}
+	case WM_SIZE:
+		{
+			MY_TRACE(_T("container_wndProc(WM_SIZE, 0x%08X, 0x%08X)\n"), wParam, lParam);
+
+			// レイアウトを更新する。
+			recalcLayout();
+
+			break;
+		}
+	case WM_WINDOWPOSCHANGED:
+		{
+			MY_TRACE(_T("container_wndProc(WM_WINDOWPOSCHANGED, 0x%08X, 0x%08X)\n"), wParam, lParam);
+
+			// コンテナウィンドウの位置をグローバル変数に保存する。
+			::GetWindowRect(g_container, &g_containerRect);
+
+			break;
+		}
 	case WM_CONTEXTMENU:
 		{
 			MY_TRACE(_T("WM_CONTEXTMENU, 0x%08X, 0x%08X\n"), wParam, lParam);
@@ -494,10 +505,12 @@ LRESULT CALLBACK container_wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
 
 			if (control == g_recent)
 			{
+				// コンボボックスのコンテキストメニューを表示する。
 				showComboBoxContextMenu(hwnd, wParam, lParam);
 			}
 			else
 			{
+				// ツリービューのコンテキストメニューを表示する。
 				showTreeViewContextMenu(hwnd, wParam, lParam);
 			}
 
@@ -682,17 +695,6 @@ LRESULT CALLBACK hook_exeditObjectDialog_wndProc(HWND hwnd, UINT message, WPARAM
 
 			break;
 		}
-#if 1
-	case WM_WINDOWPOSCHANGED:
-		{
-			MY_TRACE(_T("WM_WINDOWPOSCHANGED, 0x%08X, 0x%08X\n"), wParam, lParam);
-
-			// コンテナウィンドウをターゲットダイアログに追従させる。
-			moveContainer();
-
-			break;
-		}
-#endif
 	}
 
 	return 0;
@@ -750,10 +752,7 @@ LRESULT CALLBACK cwprProc(int code, WPARAM wParam, LPARAM lParam)
 					{
 						MY_TRACE(_T("フォントコンボボックスが表示されました\n"));
 
-						//readFile(g_recent, g_recentFileName);
-						//readFile(g_favorite, g_favoriteFileName);
-
-						moveContainer();
+						recalcLayout();
 						showContainer();
 					}
 					else
@@ -761,9 +760,6 @@ LRESULT CALLBACK cwprProc(int code, WPARAM wParam, LPARAM lParam)
 						MY_TRACE(_T("フォントコンボボックスが非表示になりました\n"));
 
 						hideContainer();
-
-						//writeFile(g_recent, g_recentFileName);
-						//writeFile(g_favorite, g_favoriteFileName);
 					}
 				}
 

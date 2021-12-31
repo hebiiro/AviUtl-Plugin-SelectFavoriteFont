@@ -24,11 +24,11 @@ HRESULT saveSettings()
 		// <setting> を作成する。
 		saveSetting(element);
 
-		// <recent> を作成する。
-		saveRecent(element);
-
 		// <favorite> を作成する。
 		saveFavorite(element);
+
+		// <recent> を作成する。
+		saveRecent(element);
 #if 0
 		// テスト用。既存の設定ファイルを破壊しないように別のファイルで保存テストをする。
 		TCHAR test[MAX_PATH] = {};
@@ -55,8 +55,10 @@ HRESULT saveSetting(const MSXML2::IXMLDOMElementPtr& element)
 	MSXML2::IXMLDOMElementPtr settingElement = appendElement(element, L"setting");
 
 	// <setting> のアトリビュートを作成する。
-	setPrivateProfileReal(settingElement, L"containerWidthScale", g_containerWidthScale);
-	setPrivateProfileReal(settingElement, L"containerHeightScale", g_containerHeightScale);
+	setPrivateProfileReal(settingElement, L"x", g_containerRect.left);
+	setPrivateProfileReal(settingElement, L"y", g_containerRect.top);
+	setPrivateProfileReal(settingElement, L"w", GetWidth(&g_containerRect));
+	setPrivateProfileReal(settingElement, L"h", GetHeight(&g_containerRect));
 	setPrivateProfileString(settingElement, L"labelFormat", g_labelFormat);
 	setPrivateProfileString(settingElement, L"separatorFormat", g_separatorFormat);
 

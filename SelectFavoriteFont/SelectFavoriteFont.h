@@ -43,8 +43,7 @@ extern HWND g_container;
 extern HWND g_recent;
 extern HWND g_favorite;
 
-extern double g_containerWidthScale;
-extern double g_containerHeightScale;
+extern RECT g_containerRect;
 extern _bstr_t g_labelFormat;
 extern _bstr_t g_separatorFormat;
 
