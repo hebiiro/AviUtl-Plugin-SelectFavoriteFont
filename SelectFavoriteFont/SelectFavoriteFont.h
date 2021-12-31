@@ -8,6 +8,8 @@ const UINT ID_FONT_COMBO_BOX = 0x5654;
 const UINT ID_RECENT = 2021;
 const UINT ID_FAVORITE= 2022;
 
+const UINT WEB_DROP_DOWN_LIST = 0;
+
 //---------------------------------------------------------------------
 // Class
 
@@ -94,5 +96,16 @@ LRESULT CALLBACK hook_exeditObjectDialog_wndProc(HWND hwnd, UINT message, WPARAM
 LRESULT CALLBACK cwprProc(int code, WPARAM wParam, LPARAM lParam);
 void hook();
 void unhook();
+
+void preview_create();
+void preview_init(HWND list);
+void preview_show();
+void preview_hide();
+void preview_recalcLayout();
+void preview_draw(HDC dc);
+void preview_refresh();
+HRESULT loadPreview(const MSXML2::IXMLDOMElementPtr& element);
+HRESULT savePreview(const MSXML2::IXMLDOMElementPtr& element);
+LRESULT CALLBACK preview_wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 //---------------------------------------------------------------------

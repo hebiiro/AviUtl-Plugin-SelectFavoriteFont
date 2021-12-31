@@ -16,6 +16,7 @@
     <ClCompile Include="SelectFavoriteFont_Load.cpp" />
     <ClCompile Include="SelectFavoriteFont_Save.cpp" />
     <ClCompile Include="SelectFavoriteFont_Utility.cpp" />
+    <ClCompile Include="SelectFavoriteFont_Preview.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SelectFavoriteFont.def" />

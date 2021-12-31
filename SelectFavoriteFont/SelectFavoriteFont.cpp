@@ -218,6 +218,8 @@ void createContainer()
 	TreeView_SetExtendedStyle(g_favorite, TVS_EX_DOUBLEBUFFER, 0);
 	::SetWindowTheme(g_favorite, L"Explorer", 0);
 #endif
+
+	preview_create();
 }
 
 // コンテナウィンドウを削除する
@@ -703,9 +705,16 @@ LRESULT CALLBACK hook_exeditObjectDialog_wndProc(HWND hwnd, UINT message, WPARAM
 // CallWndProcRet フック関数
 LRESULT CALLBACK cwprProc(int code, WPARAM wParam, LPARAM lParam)
 {
+
 	if (code >= 0)
 	{
 		CWPRETSTRUCT* cwpr = (CWPRETSTRUCT*)lParam;
+
+		if (::GetKeyState(VK_MENU) < 0)
+		{
+			static int i = 0;
+			MY_TRACE(_T("%d, 0x%08X, 0x%08X, 0x%08X, 0x%08X\n"), i++, cwpr->hwnd, cwpr->message, cwpr->wParam, cwpr->lParam);
+		}
 
 		switch(cwpr->message)
 		{
@@ -761,6 +770,49 @@ LRESULT CALLBACK cwprProc(int code, WPARAM wParam, LPARAM lParam)
 
 						hideContainer();
 					}
+				}
+
+				// フォントコンボボックスのドロップダウンリストか調べる。
+				HWND fontComboBox = ::GetDlgItem(g_exeditObjectDialog, ID_FONT_COMBO_BOX);
+				COMBOBOXINFO cbi = { sizeof(cbi) };
+				::GetComboBoxInfo(fontComboBox, &cbi);
+				if (cbi.hwndList == control)
+				{
+					MY_TRACE(_T("ドロップダウンリストの WM_SHOWWINDOW\n"));
+
+					if (cwpr->wParam)
+					{
+						MY_TRACE(_T("ドロップダウンリストが表示されました\n"));
+						preview_init(control);
+						preview_recalcLayout();
+						preview_show();
+					}
+					else
+					{
+						MY_TRACE(_T("ドロップダウンリストが非表示になりました\n"));
+
+						preview_hide();
+					}
+				}
+
+				break;
+			}
+		case WM_PAINT:
+//		case WM_VSCROLL:
+//		case WM_MOUSEWHEEL:
+			{
+				// フォントコンボボックスのドロップダウンリストか調べる。
+				HWND control = cwpr->hwnd;
+				HWND fontComboBox = ::GetDlgItem(g_exeditObjectDialog, ID_FONT_COMBO_BOX);
+				COMBOBOXINFO cbi = { sizeof(cbi) };
+				::GetComboBoxInfo(fontComboBox, &cbi);
+
+				if (cbi.hwndList == control)
+				{
+					MY_TRACE(_T("ドロップダウンリストの WM_PAINT\n"));
+
+					// プレビューを再描画する。
+					preview_refresh();
 				}
 
 				break;

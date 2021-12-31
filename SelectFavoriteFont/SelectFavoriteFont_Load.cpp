@@ -33,6 +33,9 @@ HRESULT loadSettings()
 		// <setting> を読み込む。
 		loadSetting(element);
 
+		// <preview> を読み込む。
+		loadPreview(element);
+
 		// <recent> を読み込む。
 		loadRecent(element);
 

@@ -24,6 +24,9 @@ HRESULT saveSettings()
 		// <setting> を作成する。
 		saveSetting(element);
 
+		// <preview> を作成する。
+		savePreview(element);
+
 		// <favorite> を作成する。
 		saveFavorite(element);
 
