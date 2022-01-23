@@ -204,8 +204,8 @@ void createContainer()
 		WC_TREEVIEW,
 		_T("favorite"),
 		WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | WS_BORDER |
-//		TVS_HASBUTTONS | TVS_LINESATROOT | TVS_FULLROWSELECT,
-		TVS_HASBUTTONS | TVS_LINESATROOT | TVS_HASLINES,
+		TVS_HASBUTTONS | TVS_LINESATROOT | TVS_SHOWSELALWAYS | TVS_FULLROWSELECT,
+//		TVS_HASBUTTONS | TVS_LINESATROOT | TVS_SHOWSELALWAYS | TVS_HASLINES,
 		0, 0, 100, 100,
 		g_container,
 		(HMENU)ID_FAVORITE,
@@ -213,10 +213,9 @@ void createContainer()
 		0);
 	MY_TRACE_HEX(g_favorite);
 	SetWindowFont(g_favorite, g_font, TRUE);
-#if 0
-	// AviUtl.exe が使用しているコモンコントロールのバージョンが 5 なので、おそらく使用できない。
-	TreeView_SetExtendedStyle(g_favorite, TVS_EX_DOUBLEBUFFER, 0);
-	::SetWindowTheme(g_favorite, L"Explorer", 0);
+#if 1
+//	TreeView_SetExtendedStyle(g_favorite, TVS_EX_DOUBLEBUFFER, 0);
+	HRESULT hr = ::SetWindowTheme(g_favorite, L"Explorer", 0);
 #endif
 
 	preview_create();
@@ -850,7 +849,7 @@ void unhook()
 EXTERN_C FILTER_DLL __declspec(dllexport) * __stdcall GetFilterTable(void)
 {
 	static TCHAR g_filterName[] = TEXT("お気に入りフォント選択");
-	static TCHAR g_filterInformation[] = TEXT("お気に入りフォント選択 version 3.0.0 by 蛇色");
+	static TCHAR g_filterInformation[] = TEXT("お気に入りフォント選択 version 5.1.0 by 蛇色");
 
 	static FILTER_DLL g_filter =
 	{
