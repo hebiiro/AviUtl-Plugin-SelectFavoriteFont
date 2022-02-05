@@ -251,7 +251,7 @@ void recalcLayout()
 	MY_TRACE(_T("recalcLayout()\n"));
 
 	// 基準となる AviUtl (exedit) 側のコントロールとその矩形を取得する。
-	HWND base = ::GetDlgItem(g_exeditObjectDialog, ID_FONT_COMBO_BOX);
+	HWND base = Exedit_TextObject_GetFontComboBox();
 	RECT rcBase; ::GetWindowRect(base, &rcBase);
 	int rcBaseWidth = GetWidth(&rcBase);
 	int rcBaseHeight = GetHeight(&rcBase);
@@ -302,7 +302,7 @@ void showComboBoxContextMenu(HWND hwnd, WPARAM wParam, LPARAM lParam)
 	MY_TRACE(_T("showComboBoxContextMenu(0x%08X, 0x%08X, 0x%08X)\n"), hwnd, wParam, lParam);
 
 	HWND myFontComboBox = (HWND)wParam;
-	HWND fontComboBox = ::GetDlgItem(g_exeditObjectDialog, ID_FONT_COMBO_BOX);
+	HWND fontComboBox = Exedit_TextObject_GetFontComboBox();
 
 	tstring fontName = ComboBox_GetCurrentText(fontComboBox);
 	tstring myFontName = ComboBox_GetCurrentText(myFontComboBox);
@@ -373,7 +373,7 @@ void showTreeViewContextMenu(HWND hwnd, WPARAM wParam, LPARAM lParam)
 	}
 	MY_TRACE_WSTR(label.GetBSTR());
 
-	HWND fontComboBox = ::GetDlgItem(g_exeditObjectDialog, ID_FONT_COMBO_BOX);
+	HWND fontComboBox = Exedit_TextObject_GetFontComboBox();
 	tstring fontName = ComboBox_GetCurrentText(fontComboBox);
 
 	TCHAR addText[MAX_PATH] = {};
@@ -449,6 +449,26 @@ void showTreeViewContextMenu(HWND hwnd, WPARAM wParam, LPARAM lParam)
 }
 
 //---------------------------------------------------------------------
+
+HWND Exedit_TextObject_GetFontComboBox()
+{
+	HWND child = ::GetWindow(g_exeditObjectDialog, GW_CHILD);
+	while (child)
+	{
+		if (::GetDlgCtrlID(child) == ID_FONT_COMBO_BOX)
+		{
+			TCHAR className[MAX_PATH] = {};
+			::GetClassName(child, className, MAX_PATH);
+			if (::lstrcmpi(className, WC_COMBOBOX) == 0)
+				return child;
+
+		}
+
+		child = ::GetWindow(child, GW_HWNDNEXT);
+	}
+
+	return 0;
+}
 
 void Exedit_TextObject_SetFont(HWND fontComboBox, LPCTSTR text)
 {
@@ -531,7 +551,7 @@ LRESULT CALLBACK container_wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
 				MY_TRACE(_T("container_wndProc(CBN_SELCHANGE, 0x%08X, 0x%08X)\n"), id, sender);
 
 				// フォントコンボボックスを取得する。
-				HWND fontComboBox = ::GetDlgItem(g_exeditObjectDialog, ID_FONT_COMBO_BOX);
+				HWND fontComboBox = Exedit_TextObject_GetFontComboBox();
 				if (!fontComboBox) break;
 
 				// 選択されているフォント名を取得する。
@@ -635,7 +655,7 @@ LRESULT CALLBACK container_wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
 							// コンテナ内のツリービューの選択が切り替えられた。
 
 							// フォントコンボボックスを取得する。
-							HWND fontComboBox = ::GetDlgItem(g_exeditObjectDialog, ID_FONT_COMBO_BOX);
+							HWND fontComboBox = Exedit_TextObject_GetFontComboBox();
 							if (!fontComboBox) break;
 
 							TreeItemContainer::iterator it = g_favoriteItems.find(nm->itemNew.hItem);
@@ -747,47 +767,41 @@ LRESULT CALLBACK cwprProc(int code, WPARAM wParam, LPARAM lParam)
 			{
 //				MY_TRACE(_T("WM_SHOWWINDOW, 0x%08X, 0x%08X\n"), cwpr->wParam, cwpr->lParam);
 
+				// フォントコンボボックスを取得する。
+				HWND fontComboBox = Exedit_TextObject_GetFontComboBox();
+				if (!fontComboBox) break;
+
 				// フォントコンボボックスか調べる。
-				HWND control = cwpr->hwnd;
-				UINT id = ::GetDlgCtrlID(control);
-//				MY_TRACE_INT(id);
-				if (id == ID_FONT_COMBO_BOX)
+				if (cwpr->hwnd == fontComboBox)
 				{
-					// コンボボックスかどうかクラス名で判断する。
-					TCHAR className[MAX_PATH] = {};
-					::GetClassName(control, className, MAX_PATH);
-					if (::lstrcmpi(className, WC_COMBOBOX) == 0)
+					MY_TRACE(_T("フォントコンボボックスの WM_SHOWWINDOW\n"));
+
+					if (cwpr->wParam)
 					{
-						MY_TRACE(_T("フォントコンボボックスの WM_SHOWWINDOW\n"));
+						MY_TRACE(_T("フォントコンボボックスが表示されました\n"));
 
-						if (cwpr->wParam)
-						{
-							MY_TRACE(_T("フォントコンボボックスが表示されました\n"));
+						recalcLayout();
+						showContainer();
+					}
+					else
+					{
+						MY_TRACE(_T("フォントコンボボックスが非表示になりました\n"));
 
-							recalcLayout();
-							showContainer();
-						}
-						else
-						{
-							MY_TRACE(_T("フォントコンボボックスが非表示になりました\n"));
-
-							hideContainer();
-						}
+						hideContainer();
 					}
 				}
 
 				// フォントコンボボックスのドロップダウンリストか調べる。
-				HWND fontComboBox = ::GetDlgItem(g_exeditObjectDialog, ID_FONT_COMBO_BOX);
 				COMBOBOXINFO cbi = { sizeof(cbi) };
 				::GetComboBoxInfo(fontComboBox, &cbi);
-				if (cbi.hwndList == control)
+				if (cwpr->hwnd == cbi.hwndList)
 				{
 					MY_TRACE(_T("ドロップダウンリストの WM_SHOWWINDOW\n"));
 
 					if (cwpr->wParam)
 					{
 						MY_TRACE(_T("ドロップダウンリストが表示されました\n"));
-						preview_init(control);
+						preview_init(cwpr->hwnd);
 						preview_recalcLayout();
 						preview_show();
 					}
@@ -805,13 +819,14 @@ LRESULT CALLBACK cwprProc(int code, WPARAM wParam, LPARAM lParam)
 //		case WM_VSCROLL:
 //		case WM_MOUSEWHEEL:
 			{
+				// フォントコンボボックスを取得する。
+				HWND fontComboBox = Exedit_TextObject_GetFontComboBox();
+				if (!fontComboBox) break;
+
 				// フォントコンボボックスのドロップダウンリストか調べる。
-				HWND control = cwpr->hwnd;
-				HWND fontComboBox = ::GetDlgItem(g_exeditObjectDialog, ID_FONT_COMBO_BOX);
 				COMBOBOXINFO cbi = { sizeof(cbi) };
 				::GetComboBoxInfo(fontComboBox, &cbi);
-
-				if (cbi.hwndList == control)
+				if (cwpr->hwnd == cbi.hwndList)
 				{
 					MY_TRACE(_T("ドロップダウンリストの WM_PAINT\n"));
 

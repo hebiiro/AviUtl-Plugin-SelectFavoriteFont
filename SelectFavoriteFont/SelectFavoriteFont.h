@@ -3,11 +3,16 @@
 //---------------------------------------------------------------------
 // Define and Const
 
+// フォントコンボボックスに割り当てられている ID。
+// ただし、他のコントロールにも同じ ID が
+// 割り当てられている場合があるので注意が必要。(例えばグループ制御の対象レイヤー数)
 const UINT ID_FONT_COMBO_BOX = 0x5654;
 
+// このプラグインで作成するコントロールの ID。
 const UINT ID_RECENT = 2021;
 const UINT ID_FAVORITE= 2022;
 
+// コンボボックスの Window Extra Bytes。
 const UINT WEB_DROP_DOWN_LIST = 0;
 
 //---------------------------------------------------------------------
@@ -89,6 +94,7 @@ void hideContainer();
 void showComboBoxContextMenu(HWND hwnd, WPARAM wParam, LPARAM lParam);
 void showTreeViewContextMenu(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
+HWND Exedit_TextObject_GetFontComboBox();
 void Exedit_TextObject_SetFont(HWND fontComboBox, LPCTSTR text);
 
 LRESULT CALLBACK container_wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
