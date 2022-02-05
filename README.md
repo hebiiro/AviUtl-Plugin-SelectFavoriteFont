@@ -2,6 +2,7 @@
 
 # AviUtl プラグイン - お気に入りフォント選択
 
+* version 5.1.1 by 蛇色 - 2022/02/05 グループ制御に反応してしまう問題を修正
 * version 5.1.0 by 蛇色 - 2022/01/23 コモンコントロール V6 に変更
 * version 5.0.0 by 蛇色 - 2021/12/31 フォントプレビュー機能を追加
 * version 4.0.0 by 蛇色 - 2021/12/31 ウィンドウの位置とサイズを固定しないように変更
@@ -64,6 +65,6 @@
 ## 動作確認
 
 * (必須) AviUtl 1.10 & 拡張編集 0.92 http://spring-fragrance.mints.ne.jp/aviutl/
-* (共存確認) patch.aul r8 https://www.nicovideo.jp/watch/sm39491708
+* (共存確認) patch.aul r10 https://www.nicovideo.jp/watch/sm39491708
 * (共存確認) eclipse_fast 1.00 https://www.nicovideo.jp/watch/sm39756003
 * (共存確認) 爆速プラグイン 1.06 https://www.nicovideo.jp/watch/sm39679253

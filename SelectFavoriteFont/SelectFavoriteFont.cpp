@@ -747,27 +747,32 @@ LRESULT CALLBACK cwprProc(int code, WPARAM wParam, LPARAM lParam)
 			{
 //				MY_TRACE(_T("WM_SHOWWINDOW, 0x%08X, 0x%08X\n"), cwpr->wParam, cwpr->lParam);
 
-				// フォントコンボボックスのメッセージかチェックする。
+				// フォントコンボボックスか調べる。
 				HWND control = cwpr->hwnd;
 				UINT id = ::GetDlgCtrlID(control);
 //				MY_TRACE_INT(id);
-
 				if (id == ID_FONT_COMBO_BOX)
 				{
-					MY_TRACE(_T("フォントコンボボックスの WM_SHOWWINDOW\n"));
-
-					if (cwpr->wParam)
+					// コンボボックスかどうかクラス名で判断する。
+					TCHAR className[MAX_PATH] = {};
+					::GetClassName(control, className, MAX_PATH);
+					if (::lstrcmpi(className, WC_COMBOBOX) == 0)
 					{
-						MY_TRACE(_T("フォントコンボボックスが表示されました\n"));
+						MY_TRACE(_T("フォントコンボボックスの WM_SHOWWINDOW\n"));
 
-						recalcLayout();
-						showContainer();
-					}
-					else
-					{
-						MY_TRACE(_T("フォントコンボボックスが非表示になりました\n"));
+						if (cwpr->wParam)
+						{
+							MY_TRACE(_T("フォントコンボボックスが表示されました\n"));
 
-						hideContainer();
+							recalcLayout();
+							showContainer();
+						}
+						else
+						{
+							MY_TRACE(_T("フォントコンボボックスが非表示になりました\n"));
+
+							hideContainer();
+						}
 					}
 				}
 
