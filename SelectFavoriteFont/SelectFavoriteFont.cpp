@@ -3,8 +3,8 @@
 
 //---------------------------------------------------------------------
 
-HINSTANCE g_instance = 0; // この DLL のハンドル
-HFONT g_font = 0; // コントロール用のフォントハンドル
+HINSTANCE g_instance = 0; // この DLL のハンドル。
+HFONT g_font = 0; // コントロール用のフォントハンドル。
 TCHAR g_recentFileName[MAX_PATH] = {};
 TCHAR g_favoriteFileName[MAX_PATH] = {};
 TCHAR g_settingsFileName[MAX_PATH] = {};
@@ -25,7 +25,7 @@ TreeItemContainer g_favoriteItems;
 
 //---------------------------------------------------------------------
 
-// デバッグ用コールバック関数。デバッグメッセージを出力する
+// デバッグ用コールバック関数。デバッグメッセージを出力する。
 void ___outputLog(LPCTSTR text, LPCTSTR output)
 {
 	::OutputDebugString(output);
@@ -149,7 +149,7 @@ void expandFavoriteItems(HTREEITEM parentHandle)
 	}
 }
 
-// コンテナウィンドウとコントロール群を作成し、初期設定する
+// コンテナウィンドウとコントロール群を作成し、初期設定する。
 void createContainer()
 {
 	MY_TRACE(_T("createContainer()\n"));
@@ -172,8 +172,8 @@ void createContainer()
 		_T("SelectFavoriteFont"),
 		WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
 		WS_POPUP | WS_CAPTION | WS_THICKFRAME,
-//		WS_POPUP | WS_BORDER, // コンテナウィンドウに細い枠を付けたいならこっちを使う
-//		WS_POPUP | WS_DLGFRAME, // コンテナウィンドウに立体枠を付けたいならこっちを使う
+//		WS_POPUP | WS_BORDER, // コンテナウィンドウに細い枠を付けたいならこっちを使う。
+//		WS_POPUP | WS_DLGFRAME, // コンテナウィンドウに立体枠を付けたいならこっちを使う。
 		0, 0, 100, 100,
 		g_exeditObjectDialog,
 		0,
@@ -221,7 +221,7 @@ void createContainer()
 	preview_create();
 }
 
-// コンテナウィンドウを削除する
+// コンテナウィンドウを削除する。
 void destroyContainer()
 {
 	MY_TRACE(_T("destroyContainer()\n"));
@@ -229,7 +229,7 @@ void destroyContainer()
 	::DestroyWindow(g_container);
 }
 
-// コンテナウィンドウを表示する
+// コンテナウィンドウを表示する。
 void showContainer()
 {
 	MY_TRACE(_T("showContainer()\n"));
@@ -237,7 +237,7 @@ void showContainer()
 	::ShowWindow(g_container, SW_SHOWNA);
 }
 
-// コンテナウィンドウを非表示にする
+// コンテナウィンドウを非表示にする。
 void hideContainer()
 {
 	MY_TRACE(_T("hideContainer()\n"));
@@ -245,7 +245,7 @@ void hideContainer()
 	::ShowWindow(g_container, SW_HIDE);
 }
 
-// コントロール群の表示位置を調整する
+// コントロール群の表示位置を調整する。
 void recalcLayout()
 {
 	MY_TRACE(_T("recalcLayout()\n"));
@@ -261,7 +261,7 @@ void recalcLayout()
 	int rcContainerWidth = GetWidth(&rcContainer);
 	int rcContainerHeight = GetHeight(&rcContainer);
 
-	HDWP dwp = ::BeginDeferWindowPos(2); // 引数は動かすウィンドウの数
+	HDWP dwp = ::BeginDeferWindowPos(2); // 引数は動かすウィンドウの数。
 	MY_TRACE_HEX(dwp);
 	if (!dwp) return;
 
@@ -452,11 +452,14 @@ void showTreeViewContextMenu(HWND hwnd, WPARAM wParam, LPARAM lParam)
 
 HWND Exedit_TextObject_GetFontComboBox()
 {
+	// 同じ ID のコントロールが複数ある場合があるので全検索を行う。
 	HWND child = ::GetWindow(g_exeditObjectDialog, GW_CHILD);
 	while (child)
 	{
+		// ID をチェックする。
 		if (::GetDlgCtrlID(child) == ID_FONT_COMBO_BOX)
 		{
+			// クラス名もチェックする。
 			TCHAR className[MAX_PATH] = {};
 			::GetClassName(child, className, MAX_PATH);
 			if (::lstrcmpi(className, WC_COMBOBOX) == 0)
@@ -546,7 +549,7 @@ LRESULT CALLBACK container_wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
 			UINT id = LOWORD(wParam);
 			HWND sender = (HWND)lParam;
 
-			if (code == CBN_SELCHANGE) // コンテナ内のコンボボックスの選択が切り替えられた
+			if (code == CBN_SELCHANGE) // コンテナ内のコンボボックスの選択が切り替えられた。
 			{
 				MY_TRACE(_T("container_wndProc(CBN_SELCHANGE, 0x%08X, 0x%08X)\n"), id, sender);
 
@@ -691,7 +694,7 @@ LRESULT CALLBACK hook_exeditObjectDialog_wndProc(HWND hwnd, UINT message, WPARAM
 //			MY_TRACE(_T("hook_exeditObjectDialog_wndProc(WM_COMMAND, 0x%08X, 0x%08X)\n"), wParam, lParam);
 
 			if (g_defaultProcessingOnly)
-				break; // フラグが立っている場合は通常処理だけ。独自処理は行わない
+				break; // フラグが立っている場合は通常処理だけ。独自処理は行わない。
 
 			// WM_COMMAND メッセージの引数を分解する。
 			UINT code = HIWORD(wParam);
@@ -721,20 +724,19 @@ LRESULT CALLBACK hook_exeditObjectDialog_wndProc(HWND hwnd, UINT message, WPARAM
 	return 0;
 }
 
-// CallWndProcRet フック関数
+// CallWndProcRet フック関数。
 LRESULT CALLBACK cwprProc(int code, WPARAM wParam, LPARAM lParam)
 {
-
 	if (code >= 0)
 	{
 		CWPRETSTRUCT* cwpr = (CWPRETSTRUCT*)lParam;
-
+#if 0
 		if (::GetKeyState(VK_MENU) < 0)
 		{
 			static int i = 0;
 			MY_TRACE(_T("%d, 0x%08X, 0x%08X, 0x%08X, 0x%08X\n"), i++, cwpr->hwnd, cwpr->message, cwpr->wParam, cwpr->lParam);
 		}
-
+#endif
 		switch(cwpr->message)
 		{
 		case WM_CREATE:
@@ -847,7 +849,7 @@ LRESULT CALLBACK cwprProc(int code, WPARAM wParam, LPARAM lParam)
 	return ::CallNextHookEx(g_hook, code, wParam, lParam);
 }
 
-// CallWndProcRet フックを作成する
+// CallWndProcRet フックを作成する。
 void hook()
 {
 	MY_TRACE(_T("hook()\n"));
@@ -855,7 +857,7 @@ void hook()
 	g_hook = ::SetWindowsHookEx(WH_CALLWNDPROCRET, cwprProc, 0, ::GetCurrentThreadId());
 }
 
-// CallWndProcRet フックを削除する
+// CallWndProcRet フックを削除する。
 void unhook()
 {
 	MY_TRACE(_T("unhook()\n"));
@@ -869,7 +871,7 @@ void unhook()
 EXTERN_C FILTER_DLL __declspec(dllexport) * __stdcall GetFilterTable(void)
 {
 	static TCHAR g_filterName[] = TEXT("お気に入りフォント選択");
-	static TCHAR g_filterInformation[] = TEXT("お気に入りフォント選択 version 5.1.0 by 蛇色");
+	static TCHAR g_filterInformation[] = TEXT("お気に入りフォント選択 version 5.2.0 by 蛇色");
 
 	static FILTER_DLL g_filter =
 	{
@@ -954,3 +956,5 @@ BOOL func_exit(FILTER *fp)
 
 	return TRUE;
 }
+
+//---------------------------------------------------------------------

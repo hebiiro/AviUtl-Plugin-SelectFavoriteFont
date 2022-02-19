@@ -3,11 +3,15 @@
 
 //---------------------------------------------------------------------
 
-HWND g_preview = 0;
-BOOL g_previewEnable = TRUE;
-int g_previewItemWidth = 600;
-int g_previewItemHeight = 36;
-_bstr_t g_previewTextFormat = L"プレビュー(%s)";
+HWND g_preview = 0; // プレビューウィンドウのハンドル。
+
+BOOL g_previewEnable = TRUE; // TRUE ならプレビューを表示する。
+BOOL g_previewLeft = TRUE; // TRUE ならプレビューを左側に表示する。
+int g_previewItemWidth = 600; // プレビューアイテムの幅。
+int g_previewItemHeight = 36; // プレビューアイテムの高さ。
+_bstr_t g_previewTextFormat = L"プレビュー(%s)"; // テキストの書式。
+COLORREF g_previewFillColor = RGB(0xff, 0xff, 0xff); // 背景の色。
+COLORREF g_previewTextColor = RGB(0x00, 0x00, 0x00); // テキストの色。
 
 //---------------------------------------------------------------------
 
@@ -125,7 +129,10 @@ void preview_recalcLayout()
 
 	if (g_previewItemWidth)
 	{
-		x = rc.left - w2;
+		if (g_previewLeft)
+			x = rc.left - w2;
+		else
+			x = rc.right;
 		w = w2;
 	}
 
@@ -146,7 +153,6 @@ void preview_draw(HDC dc)
 
 	// クライアント矩形を取得する。
 	RECT rc; ::GetClientRect(g_preview, &rc);
-	::FillRect(dc, &rc, (HBRUSH)::GetStockObject(WHITE_BRUSH));
 	int clientWidth = GetWidth(&rc);
 	int clientHeight = GetHeight(&rc);
 
@@ -175,6 +181,15 @@ void preview_draw(HDC dc)
 	int w = g_previewItemWidth ? g_previewItemWidth : itemWidth;
 	int h = g_previewItemHeight ? g_previewItemHeight : itemHeight;
 
+	// 背景を塗りつぶす。
+	HBRUSH brush = ::CreateSolidBrush(g_previewFillColor);
+	::FillRect(dc, &rc, brush);
+	::DeleteObject(brush);
+
+	// カラーを設定する。
+	int oldBkMode = ::SetBkMode(dc, TRANSPARENT);
+	COLORREF oldTextColor = ::SetTextColor(dc, g_previewTextColor);
+
 	for (int i = 0; i < (int)si.nPage; i++)
 	{
 		// ドロップダウンリストのテキストを取得する。
@@ -198,6 +213,9 @@ void preview_draw(HDC dc)
 		// 次の描画位置に変更する。
 		y += h;
 	}
+
+	::SetBkMode(dc, oldBkMode);
+	::SetTextColor(dc, oldTextColor);
 }
 
 // プレビューウィンドウを再描画する。
@@ -222,9 +240,12 @@ HRESULT loadPreview(const MSXML2::IXMLDOMElementPtr& element)
 
 		// <preview> のアトリビュートを読み込む。
 		getPrivateProfileBool(previewElement, L"enable", g_previewEnable);
+		getPrivateProfileBool(previewElement, L"left", g_previewLeft);
 		getPrivateProfileInt(previewElement, L"itemWidth", g_previewItemWidth);
 		getPrivateProfileInt(previewElement, L"itemHeight", g_previewItemHeight);
 		getPrivateProfileString(previewElement, L"textFormat", g_previewTextFormat);
+		getPrivateProfileColor(previewElement, L"fillColor", g_previewFillColor);
+		getPrivateProfileColor(previewElement, L"textColor", g_previewTextColor);
 	}
 
 	return S_OK;
@@ -240,9 +261,12 @@ HRESULT savePreview(const MSXML2::IXMLDOMElementPtr& element)
 
 	// <preview> のアトリビュートを作成する。
 	setPrivateProfileBool(previewElement, L"enable", g_previewEnable);
+	setPrivateProfileBool(previewElement, L"left", g_previewLeft);
 	setPrivateProfileInt(previewElement, L"itemWidth", g_previewItemWidth);
 	setPrivateProfileInt(previewElement, L"itemHeight", g_previewItemHeight);
 	setPrivateProfileString(previewElement, L"textFormat", g_previewTextFormat);
+	setPrivateProfileColor(previewElement, L"fillColor", g_previewFillColor);
+	setPrivateProfileColor(previewElement, L"textColor", g_previewTextColor);
 
 	return S_OK;
 }
@@ -259,7 +283,19 @@ LRESULT CALLBACK preview_wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 			// プレビューウィンドウの描画を行う。
 			PAINTSTRUCT ps = {};
 			HDC dc = ::BeginPaint(hwnd, &ps);
-			preview_draw(dc);
+			RECT rc = ps.rcPaint;
+
+			BP_PAINTPARAMS pp = { sizeof(pp) };
+			HDC mdc = 0;
+			HPAINTBUFFER pb = ::BeginBufferedPaint(dc, &rc, BPBF_COMPATIBLEBITMAP, &pp, &mdc);
+
+			if (pb)
+			{
+				preview_draw(mdc);
+
+				::EndBufferedPaint(pb, TRUE);
+			}
+
 			::EndPaint(hwnd, &ps);
 
 			break;

@@ -570,13 +570,25 @@ inline HRESULT WINAPI setPrivateProfileBool(
 {
 	return element->setAttribute(name, value ? L"YES" : L"NO");
 }
+
+inline HRESULT WINAPI setPrivateProfileColor(
+	const MSXML2::IXMLDOMElementPtr& element, LPCWSTR name, COLORREF value)
+{
+	BYTE r = GetRValue(value);
+	BYTE g = GetGValue(value);
+	BYTE b = GetBValue(value);
+
+	WCHAR text[MAX_PATH] = {};
+	::StringCbPrintfW(text, sizeof(text), L"#%02x%02x%02x", r, g, b);
+	return element->setAttribute(name, text);
+}
+
 #ifdef _GDIPLUS_H
 inline HRESULT WINAPI setPrivateProfileColor(
 	const MSXML2::IXMLDOMElementPtr& element, LPCWSTR name, const Gdiplus::Color& value)
 {
 	WCHAR text[MAX_PATH] = {};
 	::StringCbPrintfW(text, sizeof(text), L"%08X", value.GetValue());
-
 	return element->setAttribute(name, text);
 }
 #endif
