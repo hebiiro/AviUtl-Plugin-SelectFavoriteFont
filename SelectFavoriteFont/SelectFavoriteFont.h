@@ -12,8 +12,8 @@ const UINT ID_FONT_COMBO_BOX = 0x5654;
 const UINT ID_RECENT = 2021;
 const UINT ID_FAVORITE= 2022;
 
-// コンボボックスの Window Extra Bytes。
-const UINT WEB_DROP_DOWN_LIST = 0;
+const UINT WEB_DROP_DOWN_LIST = 0; // プレビュー用の Window Extra Bytes。
+const UINT WM_MY_DROPDOWN = WM_APP + 100; // フォントコンボボックスのドロップダウンリストが表示されたときに使用するメッセージ。
 
 //---------------------------------------------------------------------
 // Class
@@ -104,12 +104,13 @@ void hook();
 void unhook();
 
 void preview_create();
-void preview_init(HWND list);
+void preview_init(HWND dropDownList);
 void preview_show();
 void preview_hide();
 void preview_recalcLayout();
 void preview_draw(HDC dc);
 void preview_refresh();
+void preview_dropDown(HWND fontComboBox, HWND dropDownList);
 HRESULT loadPreview(const MSXML2::IXMLDOMElementPtr& element);
 HRESULT savePreview(const MSXML2::IXMLDOMElementPtr& element);
 LRESULT CALLBACK preview_wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);

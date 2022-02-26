@@ -716,6 +716,14 @@ LRESULT CALLBACK hook_exeditObjectDialog_wndProc(HWND hwnd, UINT message, WPARAM
 					ComboBox_AddFontName(g_recent, text.c_str());
 				}
 			}
+			else if (code == CBN_DROPDOWN && id == ID_FONT_COMBO_BOX)
+			{
+				MY_TRACE(_T("hook_exeditObjectDialog_wndProc(CBN_DROPDOWN, 0x%08X, 0x%08X)\n"), id, sender);
+
+				COMBOBOXINFO cbi = { sizeof(cbi) };
+				::GetComboBoxInfo(sender, &cbi);
+				preview_dropDown(sender, cbi.hwndList);
+			}
 
 			break;
 		}
@@ -802,10 +810,12 @@ LRESULT CALLBACK cwprProc(int code, WPARAM wParam, LPARAM lParam)
 
 					if (cwpr->wParam)
 					{
+#if 0
 						MY_TRACE(_T("ドロップダウンリストが表示されました\n"));
 						preview_init(cwpr->hwnd);
 						preview_recalcLayout();
 						preview_show();
+#endif
 					}
 					else
 					{
@@ -818,6 +828,7 @@ LRESULT CALLBACK cwprProc(int code, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 		case WM_PAINT:
+		case WM_PRINT:
 //		case WM_VSCROLL:
 //		case WM_MOUSEWHEEL:
 			{
@@ -871,7 +882,7 @@ void unhook()
 EXTERN_C FILTER_DLL __declspec(dllexport) * __stdcall GetFilterTable(void)
 {
 	static TCHAR g_filterName[] = TEXT("お気に入りフォント選択");
-	static TCHAR g_filterInformation[] = TEXT("お気に入りフォント選択 version 5.2.0 by 蛇色");
+	static TCHAR g_filterInformation[] = TEXT("お気に入りフォント選択 version 5.2.1 by 蛇色");
 
 	static FILTER_DLL g_filter =
 	{

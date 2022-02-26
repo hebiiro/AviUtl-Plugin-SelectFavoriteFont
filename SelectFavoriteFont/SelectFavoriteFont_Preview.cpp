@@ -70,11 +70,11 @@ void preview_create()
 }
 
 // プレビューウィンドウを初期化する。
-void preview_init(HWND list)
+void preview_init(HWND dropDownList)
 {
-	MY_TRACE(_T("preview_init(0x%08X)\n"), list);
+	MY_TRACE(_T("preview_init(0x%08X)\n"), dropDownList);
 
-	::SetWindowLong(g_preview, WEB_DROP_DOWN_LIST, (LONG)list);
+	::SetWindowLong(g_preview, WEB_DROP_DOWN_LIST, (LONG)dropDownList);
 }
 
 // プレビューウィンドウを表示する。
@@ -226,6 +226,11 @@ void preview_refresh()
 	::InvalidateRect(g_preview, NULL, FALSE);
 }
 
+void preview_dropDown(HWND fontComboBox, HWND dropDownList)
+{
+	::PostMessage(g_preview, WM_MY_DROPDOWN, (WPARAM)fontComboBox, (LPARAM)dropDownList);
+}
+
 // プレビューの設定を読み込む。
 HRESULT loadPreview(const MSXML2::IXMLDOMElementPtr& element)
 {
@@ -297,6 +302,17 @@ LRESULT CALLBACK preview_wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 			}
 
 			::EndPaint(hwnd, &ps);
+
+			break;
+		}
+	case WM_MY_DROPDOWN:
+		{
+			MY_TRACE(_T("preview_wndProc(WM_MY_DROPDOWN, 0x%08X, 0x%08X)\n"), wParam, lParam);
+
+			MY_TRACE(_T("ドロップダウンリストが表示されました\n"));
+			preview_init((HWND)lParam);
+			preview_recalcLayout();
+			preview_show();
 
 			break;
 		}
