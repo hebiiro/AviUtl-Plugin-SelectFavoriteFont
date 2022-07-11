@@ -94,13 +94,15 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../../AviUtl/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../;../../AviUtl/aviutl_exedit_sdk/</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>$(TargetName).def</ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>../../</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /B /Y "$(TargetDir)$(TargetFileName)" "C:\AviUtl110_test\Plugins\$(TargetName).auf"</Command>
@@ -116,7 +118,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../../AviUtl/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../;../../AviUtl/aviutl_exedit_sdk/</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -125,6 +128,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>$(TargetName).def</ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>../../</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /B /Y "$(TargetDir)$(TargetFileName)" "C:\AviUtl110_test\Plugins\$(TargetName).auf"</Command>
@@ -138,13 +142,15 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../../AviUtl/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../;../../AviUtl/aviutl_exedit_sdk/</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>$(TargetName).def</ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>../../</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /B /Y "$(TargetDir)$(TargetFileName)" "C:\AviUtl110_test\Plugins\$(TargetName).auf"</Command>
@@ -160,7 +166,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../../AviUtl/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../;../../AviUtl/aviutl_exedit_sdk/</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -169,14 +176,13 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <ModuleDefinitionFile>$(TargetName).def</ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>../../</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /B /Y "$(TargetDir)$(TargetFileName)" "C:\AviUtl110_test\Plugins\$(TargetName).auf"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Common\MyMSXML.h" />
-    <ClInclude Include="..\Common\MyTracer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="SelectFavoriteFont.h" />
   </ItemGroup>
@@ -188,6 +194,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SelectFavoriteFont_Filter.cpp" />
+    <ClCompile Include="SelectFavoriteFont_Hook.cpp" />
     <ClCompile Include="SelectFavoriteFont_Load.cpp" />
     <ClCompile Include="SelectFavoriteFont_Preview.cpp" />
     <ClCompile Include="SelectFavoriteFont_Save.cpp" />

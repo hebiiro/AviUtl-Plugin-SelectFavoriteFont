@@ -10,6 +10,8 @@
 #pragma comment(lib, "comctl32.lib")
 #include <uxtheme.h>
 #pragma comment(lib, "uxtheme.lib")
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib")
 
 #include <tchar.h>
 #include <crtdbg.h>
@@ -20,12 +22,12 @@
 #include <memory>
 #include <map>
 
-#include <comdef.h>
 #import <msxml3.dll>
 
-#include "aviutl_plugin_sdk/filter.h"
-#include "../Common/MyTracer.h"
-#include "../Common/MyMSXML.h"
+#include "AviUtl/aviutl_exedit_sdk/aviutl.hpp"
+#include "AviUtl/aviutl_exedit_sdk/exedit.hpp"
+#include "Common/Tracer.h"
+#include "Common/MSXML.h"
 
 //---------------------------------------------------------------------
 

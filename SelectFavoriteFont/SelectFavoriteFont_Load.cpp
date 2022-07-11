@@ -73,31 +73,11 @@ HRESULT loadSetting(const MSXML2::IXMLDOMElementPtr& element)
 
 		// <setting> のアトリビュートを読み込む。
 
-		int x = g_containerRect.left;
-		int y = g_containerRect.top;
-		int w = GetWidth(&g_containerRect);
-		int h = GetHeight(&g_containerRect);
-
-		getPrivateProfileReal(settingElement, L"x", x);
-		getPrivateProfileReal(settingElement, L"y", y);
-		getPrivateProfileReal(settingElement, L"w", w);
-		getPrivateProfileReal(settingElement, L"h", h);
 		getPrivateProfileString(settingElement, L"labelFormat", g_labelFormat);
 		getPrivateProfileString(settingElement, L"separatorFormat", g_separatorFormat);
 
-		MY_TRACE_INT(x);
-		MY_TRACE_INT(y);
-		MY_TRACE_INT(w);
-		MY_TRACE_INT(h);
 		MY_TRACE_WSTR(g_labelFormat.GetBSTR());
 		MY_TRACE_WSTR(g_separatorFormat.GetBSTR());
-
-		g_containerRect.left = x;
-		g_containerRect.top = y;
-		g_containerRect.right = x + w;
-		g_containerRect.bottom = y + h;
-
-		::MoveWindow(g_container, x, y, w, h, TRUE);
 	}
 
 	return S_OK;

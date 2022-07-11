@@ -62,7 +62,7 @@ void preview_create()
 		WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
 		WS_POPUP | WS_BORDER,
 		0, 0, 100, 100,
-		g_exeditObjectDialog,
+		g_settingDialog,
 		0,
 		g_instance,
 		0);

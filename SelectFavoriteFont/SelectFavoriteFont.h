@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-//---------------------------------------------------------------------
+//--------------------------------------------------------------------
 // Define and Const
 
 // フォントコンボボックスに割り当てられている ID。
@@ -15,7 +15,7 @@ const UINT ID_FAVORITE= 2022;
 const UINT WEB_DROP_DOWN_LIST = 0; // プレビュー用の Window Extra Bytes。
 const UINT WM_MY_DROPDOWN = WM_APP + 100; // フォントコンボボックスのドロップダウンリストが表示されたときに使用するメッセージ。
 
-//---------------------------------------------------------------------
+//--------------------------------------------------------------------
 // Class
 
 class TreeItem
@@ -33,30 +33,27 @@ public:
 typedef std::shared_ptr<TreeItem> TreeItemPtr;
 typedef std::map<HTREEITEM, TreeItemPtr> TreeItemContainer;
 
-//---------------------------------------------------------------------
+//--------------------------------------------------------------------
 // Variable
 
 extern HINSTANCE g_instance;
 extern HFONT g_font;
-extern TCHAR g_recentFileName[MAX_PATH];
-extern TCHAR g_favoriteFileName[MAX_PATH];
 extern TCHAR g_settingsFileName[MAX_PATH];
 extern BOOL g_isSettingsFileLoaded;
 extern BOOL g_defaultProcessingOnly;
 
 extern HHOOK g_hook;
-extern HWND g_exeditObjectDialog;
+extern HWND g_settingDialog;
 extern HWND g_container;
 extern HWND g_recent;
 extern HWND g_favorite;
 
-extern RECT g_containerRect;
 extern _bstr_t g_labelFormat;
 extern _bstr_t g_separatorFormat;
 
 extern TreeItemContainer g_favoriteItems;
 
-//---------------------------------------------------------------------
+//--------------------------------------------------------------------
 // Function
 
 HRESULT loadSettings();
@@ -87,18 +84,15 @@ void deleteFavoriteItem(HTREEITEM itemHandle);
 void updateFavoriteItem(HTREEITEM itemHandle, const TreeItemPtr& item);
 void expandFavoriteItems(HTREEITEM parentHandle);
 
-void createContainer();
-void destroyContainer();
-void showContainer();
-void hideContainer();
+void createControls(HWND container);
+void recalcLayout();
 void showComboBoxContextMenu(HWND hwnd, WPARAM wParam, LPARAM lParam);
 void showTreeViewContextMenu(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
-HWND Exedit_TextObject_GetFontComboBox();
-void Exedit_TextObject_SetFont(HWND fontComboBox, LPCTSTR text);
+HWND ExEdit_TextObject_GetFontComboBox();
+void ExEdit_TextObject_SetFont(HWND fontComboBox, LPCTSTR text);
 
-LRESULT CALLBACK container_wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-LRESULT CALLBACK hook_exeditObjectDialog_wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK settingDialog_wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK cwprProc(int code, WPARAM wParam, LPARAM lParam);
 void hook();
 void unhook();
@@ -115,4 +109,4 @@ HRESULT loadPreview(const MSXML2::IXMLDOMElementPtr& element);
 HRESULT savePreview(const MSXML2::IXMLDOMElementPtr& element);
 LRESULT CALLBACK preview_wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-//---------------------------------------------------------------------
+//--------------------------------------------------------------------

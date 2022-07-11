@@ -2,12 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="..\Common\MyMSXML.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Common\MyTracer.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="SelectFavoriteFont.h" />
   </ItemGroup>
   <ItemGroup>
@@ -17,13 +11,10 @@
     <ClCompile Include="SelectFavoriteFont_Save.cpp" />
     <ClCompile Include="SelectFavoriteFont_Utility.cpp" />
     <ClCompile Include="SelectFavoriteFont_Preview.cpp" />
+    <ClCompile Include="SelectFavoriteFont_Filter.cpp" />
+    <ClCompile Include="SelectFavoriteFont_Hook.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SelectFavoriteFont.def" />
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="Common">
-      <UniqueIdentifier>{177f322b-85e3-40d8-98e7-bca29a16eb22}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
 </Project>
