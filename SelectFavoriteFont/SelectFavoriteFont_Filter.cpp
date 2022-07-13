@@ -8,7 +8,7 @@
 BOOL func_init(AviUtl::FilterPlugin* fp)
 {
 	// ロケールを設定する。これをやらないと日本語テキストが文字化けする。
-	_tsetlocale(LC_ALL, _T(""));
+	_tsetlocale(LC_CTYPE, _T(""));
 
 	MY_TRACE(_T("func_init()\n"));
 
