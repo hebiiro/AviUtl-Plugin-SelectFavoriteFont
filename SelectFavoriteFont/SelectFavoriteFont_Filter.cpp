@@ -212,8 +212,8 @@ BOOL func_WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, AviUtl:
 //--------------------------------------------------------------------
 EXTERN_C __declspec(dllexport) AviUtl::FilterPluginDLL* CALLBACK GetFilterTable()
 {
-	static TCHAR name[] = _T("お気に入りフォント選択");
-	static TCHAR information[] = _T("お気に入りフォント選択 6.0.0 by 蛇色");
+	LPCSTR name = "お気に入りフォント選択";
+	LPCSTR information = "お気に入りフォント選択 6.0.2 by 蛇色";
 
 	static AviUtl::FilterPluginDLL filter =
 	{
